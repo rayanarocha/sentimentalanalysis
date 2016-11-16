@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="7.3.000">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="7.3.000" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="social_media:search_twitter" compatibility="7.3.000" expanded="true" height="68" name="Search Twitter" width="90" x="45" y="34">
+        <parameter key="connection" value="TwitterConnection"/>
+        <parameter key="query" value="veneziano"/>
+        <parameter key="result_type" value="recent or popular"/>
+        <parameter key="limit" value="10"/>
+        <parameter key="language" value="pt"/>
+        <parameter key="locale" value="campina grande"/>
+        <parameter key="until" value="2016.11.11 10:55:49 -0300"/>
+        <parameter key="filter_by_geo_location" value="false"/>
+        <parameter key="radius_unit" value="miles"/>
+      </operator>
+      <operator activated="true" class="com.aylien.textapi.rapidminer:aylien_sentiment" compatibility="0.2.000" expanded="true" height="68" name="Analyze Sentiment" width="90" x="179" y="34">
+        <parameter key="connection" value="AylienConnection"/>
+        <parameter key="input_attribute" value="Text"/>
+        <parameter key="sentiment_mode" value="tweet"/>
+        <parameter key="Is input URL" value="false"/>
+      </operator>
+      <operator activated="true" class="text:extract_document" compatibility="7.3.000" expanded="true" height="82" name="Extract Document" width="90" x="313" y="34">
+        <parameter key="attribute_name" value="Text"/>
+        <parameter key="example_index" value="10"/>
+      </operator>
+      <operator activated="true" class="text:tokenize" compatibility="7.3.000" expanded="true" height="68" name="Tokenize" width="90" x="447" y="34">
+        <parameter key="mode" value="non letters"/>
+        <parameter key="characters" value=".:"/>
+        <parameter key="language" value="English"/>
+        <parameter key="max_token_length" value="3"/>
+      </operator>
+      <operator activated="true" class="text:filter_stopwords_dictionary" compatibility="7.3.000" expanded="true" height="82" name="Filter Stopwords (Dictionary)" width="90" x="514" y="136">
+        <parameter key="file" value="C:\Users\rayan\Documents\FilterStopwords(Portuguese).txt"/>
+        <parameter key="case_sensitive" value="true"/>
+        <parameter key="encoding" value="SYSTEM"/>
+      </operator>
+      <operator activated="true" class="text:process_documents" compatibility="7.3.000" expanded="true" height="103" name="Process Documents" width="90" x="648" y="34">
+        <parameter key="create_word_vector" value="false"/>
+        <parameter key="vector_creation" value="TF-IDF"/>
+        <parameter key="add_meta_information" value="false"/>
+        <parameter key="keep_text" value="false"/>
+        <parameter key="prune_method" value="none"/>
+        <parameter key="prune_below_percent" value="3.0"/>
+        <parameter key="prune_above_percent" value="30.0"/>
+        <parameter key="prune_below_rank" value="0.05"/>
+        <parameter key="prune_above_rank" value="0.95"/>
+        <parameter key="datamanagement" value="double_sparse_array"/>
+        <process expanded="true">
+          <connect from_port="document" to_port="document 1"/>
+          <portSpacing port="source_document" spacing="0"/>
+          <portSpacing port="sink_document 1" spacing="0"/>
+          <portSpacing port="sink_document 2" spacing="0"/>
+        </process>
+      </operator>
+      <connect from_op="Search Twitter" from_port="output" to_op="Analyze Sentiment" to_port="Example Set"/>
+      <connect from_op="Analyze Sentiment" from_port="Example Set" to_op="Extract Document" to_port="example set"/>
+      <connect from_op="Extract Document" from_port="document" to_op="Tokenize" to_port="document"/>
+      <connect from_op="Tokenize" from_port="document" to_op="Filter Stopwords (Dictionary)" to_port="document"/>
+      <connect from_op="Filter Stopwords (Dictionary)" from_port="document" to_op="Process Documents" to_port="documents 1"/>
+      <connect from_op="Process Documents" from_port="example set" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>
