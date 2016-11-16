@@ -1,0 +1,2 @@
+# sentimentalanalysis
+Projeto de TCC
